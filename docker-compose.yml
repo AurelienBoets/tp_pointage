@@ -14,8 +14,6 @@ services:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: tp_final
       MYSQL_PASSWORD: password
-    networks:
-      - mysql-phpmyadmin
   phpmyadmin:
     depends_on:
       - bdd
@@ -25,8 +23,6 @@ services:
       - "8090:80"
     environment:
       PMA_HOST: bdd
-    networks:
-      - mysql-phpmyadmin
 
   back:
     container_name: back
@@ -43,8 +39,6 @@ services:
       dockerfile: ./back/Dockerfile
     depends_on:
       - bdd
-    networks:
-      - mysql-phpmyadmin
 
   react-nginx:
     build:
@@ -55,12 +49,6 @@ services:
       - 3000:80
     depends_on:
       - back
-    networks:
-      - mysql-phpmyadmin
-
-networks:
-  mysql-phpmyadmin:
-    driver: bridge
 
 volumes:
   db_data:

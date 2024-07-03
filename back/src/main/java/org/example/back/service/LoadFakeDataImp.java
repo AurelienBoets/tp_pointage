@@ -5,6 +5,7 @@ import org.example.back.entity.User;
 import org.example.back.repository.PointingRepository;
 import org.example.back.service.interfaces.LoadFakeData;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
+@Profile("dev")
 public class LoadFakeDataImp implements LoadFakeData {
 
     private final String DATA_DIRECTORY = "src/main/resources/fake_data";
@@ -27,21 +29,19 @@ public class LoadFakeDataImp implements LoadFakeData {
 
     @Override
     public boolean loadFakeData(User user) {
-        System.out.println("Load fake date");
+        System.out.println("Load fake data");
         try {
             Path filePath = Paths.get(DATA_DIRECTORY, FAKE_POINTING_FILE);
             BufferedReader reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8);
-            for (String line; (line = reader.readLine()) != null; ) {
+            for (String line; (line = reader.readLine()) != null;) {
                 String[] separatedData = line.split("\\|");
                 String startDateString = separatedData[1];
                 String endDateString = separatedData[2];
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime startDate = LocalDateTime.parse(startDateString, formatter);
                 LocalDateTime endDate = LocalDateTime.parse(endDateString, formatter);
-                Pointing pointing = Pointing.builder().
-                        startDate(startDate).
-                        endDate(endDate)
-                        .user(user).build();
+                Pointing pointing =
+                        Pointing.builder().startDate(startDate).endDate(endDate).user(user).build();
                 pointingRepository.save(pointing);
             }
             reader.close();

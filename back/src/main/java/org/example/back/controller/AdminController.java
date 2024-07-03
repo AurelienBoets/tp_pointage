@@ -10,8 +10,6 @@ import org.example.back.service.PointingService;
 import org.example.back.service.UserService;
 import org.example.back.service.UserStatusService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -31,7 +29,8 @@ public class AdminController {
 
     private final PointingService pointingService;
 
-    public AdminController(UserService userService, PointingService pointingService, UserStatusService userStatusService) {
+    public AdminController(UserService userService, PointingService pointingService,
+            UserStatusService userStatusService) {
         this.userService = userService;
         this.pointingService = pointingService;
         this.userStatusService = userStatusService;
@@ -59,7 +58,8 @@ public class AdminController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userUpdateDetails) {
+    public ResponseEntity<User> updateUser(@PathVariable Long id,
+            @RequestBody User userUpdateDetails) {
         final User updatedUser = userService.updateUser(id, userUpdateDetails);
         return ResponseEntity.ok(updatedUser);
     }
@@ -76,7 +76,8 @@ public class AdminController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.parse(monthPointingDto.getDate(), formatter);
         User user = userService.getUserById(monthPointingDto.getId());
-        List<Pointing> pointingList = pointingService.getPointingOfThePreviousMonth(localDate, user );
+        List<Pointing> pointingList =
+                pointingService.getPointingOfThePreviousMonth(localDate, user);
 
         long totalWorkMinutes = 0;
         int overtime = 0;
@@ -91,6 +92,7 @@ public class AdminController {
             overtime = 0;
         }
 
-        return new BaseResponseDto("Success", new WorkHourOnDateDto(totalWorkHours, overtime, pointingList));
+        return new BaseResponseDto("Success",
+                new WorkHourOnDateDto(totalWorkHours, overtime, pointingList));
     }
 }

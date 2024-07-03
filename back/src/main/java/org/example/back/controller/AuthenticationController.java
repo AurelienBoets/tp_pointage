@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -25,8 +24,9 @@ public class AuthenticationController {
 
     @Autowired
     private UserService userService;
+
     @PostMapping("/admin")
-    public ResponseEntity<?> login(@RequestBody Map<String ,String> credentials){
+    public ResponseEntity<?> login(@RequestBody Map<String, String> credentials) {
         String mail = credentials.get("mail");
         String password = credentials.get("password");
 
@@ -36,9 +36,10 @@ public class AuthenticationController {
                 String token = userService.generateToken(mail, password);
                 Map<String, Object> data = new HashMap<>();
                 data.put("token", token);
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                User user=(User) authentication.getPrincipal();
-                if(user.getRole()!= Role.ROLE_ADMIN){
+                Authentication authentication =
+                        SecurityContextHolder.getContext().getAuthentication();
+                User user = (User) authentication.getPrincipal();
+                if (user.getRole() != Role.ROLE_ADMIN) {
                     return ResponseEntity.badRequest().body("Bad login");
                 }
                 return ResponseEntity.ok(data);
@@ -49,18 +50,20 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("Bad login");
         }
     }
+
     @PostMapping("/user")
     public BaseResponseDto loginUser(@RequestBody UserLoginDto loginDetails) {
-            if (userService.verifyUser(loginDetails.getEmail(), loginDetails.getPassword())) {
-                Map<String, Object> data = new HashMap<>();
-                data.put("token", userService.generateToken(loginDetails.getEmail(), loginDetails.getPassword()));
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                User user=(User) authentication.getPrincipal();
-                user.setPointingList(new ArrayList<>());
-                data.put("user", user);
-                return new BaseResponseDto("Login successful", data);
-            } else {
-                return new BaseResponseDto("Incorrect logins");
-            }
+        if (userService.verifyUser(loginDetails.getEmail(), loginDetails.getPassword())) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("token",
+                    userService.generateToken(loginDetails.getEmail(), loginDetails.getPassword()));
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            user.setPointingList(new ArrayList<>());
+            data.put("user", user);
+            return new BaseResponseDto("Login successful", data);
+        } else {
+            return new BaseResponseDto("Incorrect logins");
+        }
     }
 }

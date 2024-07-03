@@ -4,7 +4,6 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.example.back.entity.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -32,29 +31,21 @@ public class JwtProvider {
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
 
-        String role = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+        String role = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + 86400000);
 
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("roles", role)
-                .setExpiration(expireDate)
-                .setIssuedAt(new Date())
-                .signWith(getSigninKey(), SignatureAlgorithm.HS512)
+        return Jwts.builder().setSubject(username).claim("roles", role).setExpiration(expireDate)
+                .setIssuedAt(new Date()).signWith(getSigninKey(), SignatureAlgorithm.HS512)
                 .compact();
 
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSigninKey())
-                    .build()
-                    .parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(getSigninKey()).build().parseClaimsJws(token);
             return true;
         } catch (Exception ex) {
             throw new AuthenticationCredentialsNotFoundException("Jwt expired or incorrect");
@@ -62,11 +53,8 @@ public class JwtProvider {
     }
 
     public String getUserFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getSigninKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims = Jwts.parserBuilder().setSigningKey(getSigninKey()).build()
+                .parseClaimsJws(token).getBody();
         return claims.getSubject();
 
     }
